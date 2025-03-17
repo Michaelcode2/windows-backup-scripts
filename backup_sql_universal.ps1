@@ -33,10 +33,14 @@ $config = @{
     )
 }
 
-# Helper function for consistent logging
-function Write-BackupLog {
+# Function for logging
+function Write-Log {
     param($Message)
-    & $LogFunction $Message
+    $logMessage = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss'): $Message"
+    Write-Output $logMessage
+    if ($config.LogPath) {
+        $logMessage | Out-File -FilePath $config.LogPath -Append
+    }
 }
 
 # Function to execute SQL backup
@@ -57,7 +61,7 @@ function Invoke-SqlBackup {
     )
 
     # Helper function for consistent logging
-    function Write-BackupLog {
+    function Write-Log {
         param($Message)
         & $LogFunction $Message
     }
@@ -73,7 +77,7 @@ function Invoke-SqlBackup {
     foreach ($path in $possiblePaths) {
         if (Test-Path $path) {
             $sqlTool = $path
-            Write-BackupLog "Found SQL tool at: $sqlTool"
+            Write-Log "Found SQL tool at: $sqlTool"
             break
         }
     }
@@ -83,14 +87,14 @@ function Invoke-SqlBackup {
     }
 
     # Execute backup
-    Write-BackupLog "Starting SQL backup using command-line tool"
+    Write-Log "Starting SQL backup using command-line tool"
     $result = & $sqlTool -S $Server -U $Username -P $Password -Q "BACKUP DATABASE [$Database] TO DISK='$BackupFile' WITH COMPRESSION"
     
     if ($LASTEXITCODE -ne 0) {
         throw "SQL Backup failed with exit code $LASTEXITCODE. Output: $result"
     }
 
-    Write-BackupLog "SQL Backup completed successfully"
+    Write-Log "SQL Backup completed successfully"
     return $true
 }
 
