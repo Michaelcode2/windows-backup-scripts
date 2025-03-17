@@ -105,8 +105,8 @@ try {
 
     # Create timestamp for backup files
     $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
-    $bakFile = Join-Path $config.TempBackupDir "$timestamp-$($config.DatabaseName).bak"
-    $zipFile = Join-Path $config.TempBackupDir "$timestamp-$($config.DatabaseName).zip"
+    $bakFile = Join-Path $config.TempBackupDir "$timestamp`_$($config.DatabaseName).bak"
+    $zipFile = Join-Path $config.TempBackupDir "$timestamp`_$($config.DatabaseName).zip"
 
     # Ensure directories exist
     @($config.TempBackupDir, $config.BackupDir, (Split-Path $config.LogPath -Parent)) | ForEach-Object {
